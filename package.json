@@ -1,22 +1,23 @@
 {
   "name": "zoho-smtp-app",
   "version": "1.0.0",
-  "main": "api/send-email.js",
+  "main": "server.js",
   "scripts": {
-    "dev": "vercel dev",
-    "start": "node api/send-email.js",
-    "deploy": "vercel --prod",
+    "dev": "node server.js",
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["zoho", "smtp", "email", "vercel"],
+  "keywords": [
+    "zoho",
+    "smtp",
+    "email",
+    "azure"
+  ],
   "author": "Your Name",
   "license": "ISC",
-  "description": "Zoho SMTP email service for sending emails via Vercel serverless functions",
+  "description": "Zoho SMTP email service for Azure App Service",
   "dependencies": {
     "dotenv": "^16.3.1",
     "nodemailer": "^6.9.5"
-  },
-  "devDependencies": {
-    "vercel": "^32.3.1"
   }
 }

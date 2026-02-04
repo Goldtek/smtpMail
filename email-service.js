@@ -5,7 +5,8 @@ const path = require('path');
 
 async function loadTemplate(templateName, data) {
     try {
-        const templatePath = path.join(__dirname, 'templates', `${templateName}.html`);
+        // Look for templates in the root 'templates' directory
+        const templatePath = path.join(process.cwd(), 'templates', `${templateName}.html`);
         let template = await fs.readFile(templatePath, 'utf-8');
         
         // Replace placeholders with actual data
@@ -60,28 +61,4 @@ async function sendEmail(to, subject, message) {
     }
 }
 
-// Get command line arguments
-const args = process.argv.slice(2);
-
-// Check if required arguments are provided
-if (args.length < 2) {
-    console.log('Usage: node index.js <recipient-email> "<message>" [subject]');
-    console.log('Example: node index.js recipient@example.com "Hello, this is a test message" "Test Subject"');
-    process.exit(1);
-}
-
-const toEmail = args[0];
-const message = args[1];
-const subject = args[2] || 'Message from Glory Plus International';
-
-// Execute the function with command line arguments
-sendEmail(toEmail, subject, message)
-    .then(result => {
-        if (!result.success) {
-            process.exit(1);
-        }
-    })
-    .catch(error => {
-        console.error('Failed to send email:', error);
-        process.exit(1);
-    });
+module.exports = { sendEmail };

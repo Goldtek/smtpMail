@@ -1,9 +1,9 @@
 require('dotenv').config();
 const http = require('http');
 const { URL } = require('url');
-const sendEmail = require('./index').sendEmail; // Import the sendEmail function
+const { sendEmail } = require('./email-service'); // Import the sendEmail function
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 2000;
 
 const server = http.createServer(async (req, res) => {
     // Set CORS headers
@@ -28,7 +28,7 @@ const server = http.createServer(async (req, res) => {
 
     // Parse the URL
     const url = new URL(req.url, `http://${req.headers.host}`);
-    
+
     // Only handle /send-email endpoint
     if (url.pathname !== '/send-email') {
         res.writeHead(404, { 'Content-Type': 'application/json' });
@@ -44,27 +44,34 @@ const server = http.createServer(async (req, res) => {
 
     req.on('end', async () => {
         try {
+            // Ensure Content-Type is application/json
+            if (!req.headers['content-type'] || !req.headers['content-type'].includes('application/json')) {
+                res.writeHead(415, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: false, error: 'Content-Type must be application/json' }));
+                return;
+            }
+
             const { to, subject, message } = JSON.parse(body);
-            
+
             if (!to || !message) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ 
-                    success: false, 
-                    error: 'Missing required fields: to and message are required' 
+                res.end(JSON.stringify({
+                    success: false,
+                    error: 'Missing required fields: to and message are required'
                 }));
                 return;
             }
 
             // Send the email
             const result = await sendEmail(to, subject || 'Message from Glory Plus International', message);
-            
+
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(result));
         } catch (error) {
             console.error('Error processing request:', error);
             res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ 
-                success: false, 
+            res.end(JSON.stringify({
+                success: false,
                 error: 'Internal server error',
                 details: process.env.NODE_ENV === 'development' ? error.message : undefined
             }));
