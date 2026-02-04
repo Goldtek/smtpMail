@@ -3,7 +3,7 @@ const http = require('http');
 const { URL } = require('url');
 const { sendEmail } = require('./email-service'); // Import the sendEmail function
 
-const PORT = process.env.PORT || 2000;
+const PORT = process.env.PORT || 3000;
 
 const server = http.createServer(async (req, res) => {
     // Set CORS headers
