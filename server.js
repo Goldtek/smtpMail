@@ -63,7 +63,7 @@ const server = http.createServer(async (req, res) => {
             }
 
             // Send the email
-            const result = await sendEmail(to, subject || 'Message from Glory Plus International', message);
+            const result = await sendEmail(to, subject || 'Message from GloryPlus International', message);
 
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(result));
