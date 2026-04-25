@@ -8,13 +8,13 @@ async function loadTemplate(templateName, data) {
         // Look for templates in the root 'templates' directory
         const templatePath = path.join(process.cwd(), 'templates', `${templateName}.html`);
         let template = await fs.readFile(templatePath, 'utf-8');
-        
+
         // Replace placeholders with actual data
         Object.keys(data).forEach(key => {
             const regex = new RegExp(`{{${key}}}`, 'g');
             template = template.replace(regex, data[key]);
         });
-        
+
         return template;
     } catch (error) {
         console.error('Error loading email template:', error);
@@ -22,7 +22,7 @@ async function loadTemplate(templateName, data) {
     }
 }
 
-async function sendEmail(to, subject, message) {
+async function sendEmail(to, subject, message, html) {
     try {
         // Create a transporter object using Zoho SMTP
         const transporter = nodemailer.createTransport({
@@ -38,10 +38,16 @@ async function sendEmail(to, subject, message) {
             }
         });
 
-        // Load and prepare the email template
-        const emailHtml = await loadTemplate('emailTemplate', {
-            MESSAGE: message
-        });
+        // Use provided html, or load template, or fall back to plain text
+        let emailHtml = html;
+        if (!emailHtml) {
+            try {
+                emailHtml = await loadTemplate('emailTemplate', { MESSAGE: message });
+            } catch (e) {
+                // Template not found - fallback to simple html
+                emailHtml = `<p>${message.replace(/\n/g, '<br>')}</p>`;
+            }
+        }
 
         // Send mail with defined transport object
         const info = await transporter.sendMail({
@@ -49,7 +55,7 @@ async function sendEmail(to, subject, message) {
             to: to,
             subject: subject,
             text: message, // Plain text version
-            html: emailHtml // HTML version from template
+            html: emailHtml // HTML version
         });
 
         console.log('Message sent successfully to:', to);

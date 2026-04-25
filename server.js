@@ -51,19 +51,27 @@ const server = http.createServer(async (req, res) => {
                 return;
             }
 
-            const { to, subject, message } = JSON.parse(body);
+            const { to, subject, message, html, text } = JSON.parse(body);
 
-            if (!to || !message) {
+            if (!to || (!message && !html && !text)) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({
                     success: false,
-                    error: 'Missing required fields: to and message are required'
+                    error: 'Missing required fields: to and at least one of message, html, or text are required'
                 }));
                 return;
             }
 
+            // Use html or text as message if message is not provided
+            const emailMessage = message || text || '';
+
             // Send the email
-            const result = await sendEmail(to, subject || 'Message from GloryPlus International', message);
+            const result = await sendEmail(
+                to,
+                subject || 'Message from GloryPlus International',
+                emailMessage,
+                html  // pass html separately
+            );
 
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(result));
